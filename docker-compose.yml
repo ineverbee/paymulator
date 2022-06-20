@@ -1,0 +1,42 @@
+version: '3.4'
+services:
+  postgres:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: postgres
+    expose:
+    - 5432
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "pguser"
+      POSTGRES_PASSWORD: "pgpwd4"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+  paymulator:
+    image: paymulator
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    network_mode: bridge
+    container_name: paymulator
+    environment:
+      DB_USERNAME: "pguser"
+      DB_PASSWORD: "pgpwd4"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_NAME: "test_db"
+      PAYMENT_SYSTEM_USERNAME: "kiwi"
+      PAYMENT_SYSTEM_PASSWORD: "p8fnxeqj5a7zbrqp"
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    links:
+      - postgres
+volumes:
+  postgres-data:

@@ -82,6 +82,7 @@ func TestHandlers(t *testing.T) {
 		{"POST", "/transaction", strings.NewReader("{\"user_id\": 1, \"email\": \"exmpl@m.com\", \"amount\": 1.5, \"currency\": \"USD\"}"), http.StatusCreated},
 		{"POST", "/transaction", strings.NewReader(fmt.Sprintf("{\"user_id\": 1, \"email\": \"%s\", \"amount\": 1.5, \"currency\": \"USD\"}", strings.Repeat("a", 51))), http.StatusBadRequest},
 		{"POST", "/transaction", strings.NewReader(fmt.Sprintf("{\"user_id\": 1, \"email\": \"exmpl@m.com\", \"amount\": 1.5, \"currency\": \"%s\"}", strings.Repeat("a", 21))), http.StatusBadRequest},
+		{"POST", "/transaction", strings.NewReader("{\"user_id\": 1, \"email\": \"exmpl@m.com\", \"amount\": 1.5}"), http.StatusBadRequest},
 		{"POST", "/transaction", strings.NewReader("no]/:fie;OeFM"), http.StatusBadRequest},
 		{"PUT", "/transaction", strings.NewReader("{\"id\": 1, \"transaction_status\": \"УСПЕХ\"}"), http.StatusUnauthorized},
 		{"PUT", "/transaction/1", nil, http.StatusOK},
@@ -98,6 +99,7 @@ func TestHandlers(t *testing.T) {
 	}{
 		{"PUT", "/transaction", strings.NewReader("{\"id\": 1, \"transaction_status\": \"УСПЕХ\"}"), http.StatusOK},
 		{"PUT", "/transaction", strings.NewReader("{\"id\": 1, \"transaction_status\": \"SUCCESS\"}"), http.StatusBadRequest},
+		{"PUT", "/transaction", strings.NewReader("{\"transaction_status\": \"НЕУСПЕХ\"}"), http.StatusBadRequest},
 		{"PUT", "/transaction", strings.NewReader("BadIn*p|ut"), http.StatusBadRequest},
 	}
 

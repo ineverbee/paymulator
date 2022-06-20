@@ -224,10 +224,12 @@ func CreateTransactionHandler() errorHandler {
 		if err != nil {
 			return &StatusError{http.StatusBadRequest, err}
 		}
-		if len([]rune(t.Email)) > 50 {
+		switch {
+		case t.UserID == 0 || t.Email == "" || t.Amount == 0 || t.Currency == "":
+			return &StatusError{http.StatusBadRequest, fmt.Errorf("error: required parameters: user_id, email, amount, currency")}
+		case len([]rune(t.Email)) > 50:
 			return &StatusError{http.StatusBadRequest, fmt.Errorf("error: email shouldn't be more than 50 characters")}
-		}
-		if len([]rune(t.Currency)) > 20 {
+		case len([]rune(t.Currency)) > 20:
 			return &StatusError{http.StatusBadRequest, fmt.Errorf("error: currency shouldn't be more than 20 characters")}
 		}
 
@@ -256,6 +258,10 @@ func ChangeTransactionStatusHandler() errorHandler {
 		err := decoder.Decode(t)
 		if err != nil {
 			return &StatusError{http.StatusBadRequest, err}
+		}
+
+		if t.ID == 0 || t.Status == "" {
+			return &StatusError{http.StatusBadRequest, fmt.Errorf("error: required parameters: id, transaction_status")}
 		}
 
 		switch t.Status {
